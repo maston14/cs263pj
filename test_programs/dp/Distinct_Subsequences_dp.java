@@ -9,13 +9,9 @@ S = "rabbbit", T = "rabbit"
 Return 3.
 */
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import org.junit.Assert;
 
-public class Distinct_Subsequences {
+public class Distinct_Subsequences_dp {
 
 	public static int numDistinct( String s, String t ) {
         if ( s == null || t == null )
@@ -33,7 +29,7 @@ public class Distinct_Subsequences {
         }
 
         for ( int i = 1; i < tl; i++ ) {
-            for ( int j = i; j < sl; j++ ) {q
+            for ( int j = i; j < sl; j++ ) {
                 dp[i][j] = dp[i][j - 1];
                 if ( s.charAt( j ) == t.charAt( i ) )
                     dp[i][j] += dp[i - 1][j - 1];
@@ -42,7 +38,9 @@ public class Distinct_Subsequences {
         return dp[tl - 1][sl - 1];
     }
 
-    public static void public static void main( String[] args ) {
+    public static void main( String[] args ) {
+        long tStart = System.currentTimeMillis();
+
     	Assert.assertEquals( numDistinct("ckkcharrcokast","cat"), 5 );
     	Assert.assertEquals( numDistinct("wryhsdkjfhqgifduhasdfssdsfxcbvdgaffskjdf","sjf"), 13 );
     	Assert.assertEquals( numDistinct("aaaaaffffffiouhjnklhkhkjhgggwwwqqqqq","afgwq"), 1350 );
@@ -50,5 +48,10 @@ public class Distinct_Subsequences {
     	Assert.assertEquals( numDistinct("aaaaaaaaaaaaa","a"), 13 );
     	Assert.assertEquals( numDistinct("zcmadhkloqjlkjhaaafskjsdhfkasdasdasd","asd"), 66 );
     	Assert.assertEquals( numDistinct("zcvzkfjhsakjfhazvzcasfxgvsdfzgzfasf","zf"), 24 );
+
+        long tEnd = System.currentTimeMillis();
+        long tDelta = tEnd - tStart;
+        double elapsedSeconds = tDelta / 1000.0;
+        System.out.println( elapsedSeconds + " sec");
     }
 }
