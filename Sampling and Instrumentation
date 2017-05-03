@@ -1,0 +1,164 @@
+Instrumentation
+To better measure what the Demo code is doing, I will build an instrumentation agent based on AOP with aspectj loadtime weaving. This will add some extra code invocation to some methods I specify with a so called “pointcut expression”.
+aspectj will enhance the bytecode of classes when they are loaded. The pointcut expression describes the signature of the method which shall be instrumented.
+In this case an @Around advice is used, which is passed the so called JoinPoint, which is actually a pointer to the real code that was about to be executed. Aspectj uses an JVMTI Agent and does the hard work for me. I just have to write a so called Aspect to do my measurements.
+
+The interesting part of the code is this:
+
+@Around("   call(void de.codecentric.performance.Demo.method* (..)) ")
+public void aroundDemoMethodCall(final ProceedingJoinPoint thisJoinPoint) throws Throwable {
+	long start = System.currentTimeMillis();
+	thisJoinPoint.proceed();
+	long end = System.currentTimeMillis();
+	String currentMethod = thisJoinPoint.getSignature().toString();
+	if (executionPath.size() < MAX_EXECUTION_PATH) {
+		executionPath.add(currentMethod);
+	}
+	MethodStatistics statistics = methodStatistics.get(currentMethod);
+	if (statistics == null) {
+		statistics = new MoreMethodStatistics(currentMethod);
+		methodStatistics.put(currentMethod, statistics);
+	}
+	statistics.addTime(end - start);
+	overhead += System.currentTimeMillis() - end;
+}
+As you can see, I give explicit method names to intercept: call(void de.codecentric.performance.Demo.method* (..)).
+I record start time at the beginning, and endtime after executing the method. Additionally I store the current method name in “execution path” (unless it reached its maximum), and I record method statistics for the current method. I also record how much time I spent recording this data in a field called “overhead”.
+
+Running this Instrumentation gives me this:
+
+Running Demo with [100, 1, 100, 500, 1, 100, 1, 50, 50] methods
+MIXED Demo completed in 950ms
+Trace Aspect recorded following results:
+  void de.codecentric.performance.Demo.method500ms() 501ms (min: 501ms, max: 501ms) - 1 invocations
+  void de.codecentric.performance.Demo.method100ms() 303ms (min: 101ms, max: 101ms) - 3 invocations
+  void de.codecentric.performance.Demo.method50ms() 102ms (min: 51ms, max: 51ms) - 2 invocations
+  void de.codecentric.performance.Demo.method1ms() 6ms (min: 2ms, max: 2ms) - 3 invocations
+Code Execution Path:
+  void de.codecentric.performance.Demo.method100ms()
+  void de.codecentric.performance.Demo.method1ms()
+  void de.codecentric.performance.Demo.method100ms()
+  void de.codecentric.performance.Demo.method500ms()
+  void de.codecentric.performance.Demo.method1ms()
+  void de.codecentric.performance.Demo.method100ms()
+  void de.codecentric.performance.Demo.method1ms()
+  void de.codecentric.performance.Demo.method50ms()
+  void de.codecentric.performance.Demo.method50ms()
+Agent internal Overhead 2ms
+Agent Overhead 91ms
+ 
+Running Demo with 100000000 0ms methods
+MASS Demo completed in 7261ms
+Trace Aspect recorded following results:
+void de.codecentric.performance.Demo.method0ms() 2892ms (min: 0ms, max: 2ms) - 100000000 invocations
+Code Execution Path:
+  void de.codecentric.performance.Demo.method0ms()
+  void de.codecentric.performance.Demo.method0ms()
+  [...]
+  void de.codecentric.performance.Demo.method0ms()
+  void de.codecentric.performance.Demo.method0ms()
+Execution Path incomplete!
+Agent internal Overhead 2836ms
+Agent Overhead 4ms
+We can clearly see, the instrumentation caught all the different 8 method invocations in the first example and did quite accurately record the time spent. It can tell us also in which order these methods executed. But it has a problem, as the second output shows us. The execution path was very long. One hundred million executions the aspect would need to keep in memory. Thats why I put in a limit there.
+
+So what about Overhead?
+
+There are two kinds of overhead measured by my demo code. Both are not really accurate, but give good indication where time is spent by the agent.
+The internal one counts the time spent the agent doing the statistics. It is internal because it cannot be differentiated externally and looks like time the actual business method takes to execute. And there is the overhead which can be seen externally. This is the time required to set up the instrumentation and to print the results.
+We can see that the overhead of instrumentation is low in the first case, but outputting the data to standard out took some time. In the second demo, the output was faster, because there was less data, but the internal overhead was huge. However there is a problem with the overall overhead. The internal overhead differs from the total time minus method time. 7261ms – 2892ms = 4369 ms of the time was not spent in running real code. But the agent only claims to account for 2836ms. The delta is accounted on inaccuracy both of the external and internal time measures.And of course there is some code execution inside the instrumentation which is not added to the overhead time (like the method invocation cost of aroundDemoMethodCall(JoinPoint thisJoinPoint))
+
+Sampling
+My sampling code will create a daemon thread, which will look into the main thread every 10ms and track the activity. The interesting code of that agent is this:
+
+@Override
+public void run() {
+	lastSample = System.currentTimeMillis();
+	while (true) {
+		try {
+			Thread.sleep(interval);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+ 
+		String currentMethod = getCurrentMethod();
+		long currentSample = System.currentTimeMillis();
+ 
+		addMeasurementsIfStillInMethod(currentMethod, currentSample);
+ 
+		lastMethod = currentMethod;
+		lastSample = currentSample;
+ 
+		overhead += System.currentTimeMillis() - currentSample;
+	}
+}
+ 
+private void addMeasurementsIfStillInMethod(final String currentMethod, final long currentSample) {
+	if (currentMethod.equals(lastMethod)) {
+		MethodStatistics statistics = methodStatistics.get(currentMethod);
+		if (statistics == null) {
+			statistics = new MethodStatistics(currentMethod);
+			methodStatistics.put(currentMethod, statistics);
+		}
+		statistics.addTime(currentSample - lastSample);
+	} else {
+		if (executionPath.size() < MAX_EXECUTION_PATH) {
+			executionPath.add(getParentMethod() + " > " + currentMethod);
+		}
+	}
+}
+ 
+private String getCurrentMethod() {
+	StackTraceElement topOfStack = monitoredThread.getStackTrace()[0];
+	return formatStackElement(topOfStack);
+}
+So the agent will sleep its given interval, wake up and find out what method is executing on the monitored thread using monitoredThread.getStackTrace()[0]. Then it records the current time to find out how long it has been sleeping since the last sample (this will be likely around 10ms but might differ!). Then it will find out if the code is still in the same method as the last time. This is quite important, because the agent can only record the execution time when the same method is seen back-to-back. If the method is seen the first time, we add it to the execution path (also respecting the same limit here). Then we update internal states and calculate overhead for the statistics part.
+
+Agent monitoring thread main with sampling interval of 10ms
+Running Demo with [100, 1, 100, 500, 1, 100, 1, 50, 50] methods
+MIXED Demo completed in 916ms
+Agent stopped - Results:
+  void de.codecentric.performance.Demo.method500ms() 488ms
+  void de.codecentric.performance.Demo.method100ms() 285ms
+  void java.lang.Thread.sleep() 101ms
+Code Execution Path:
+  void de.codecentric.performance.Demo.runCode() > void de.codecentric.performance.Demo.method100ms()
+  void de.codecentric.performance.Demo.runCode() > void de.codecentric.performance.Demo.method500ms()
+  void de.codecentric.performance.Demo.runCode() > void de.codecentric.performance.Demo.method100ms()
+  void de.codecentric.performance.Demo.method50ms() > void java.lang.Thread.sleep()
+Agent internal Overhead 4ms
+Agent Overhead 36ms
+Agent monitoring thread main with sampling interval of 10ms
+ 
+Running Demo with 100000000 0ms methods
+MASS Demo completed in 2959ms
+Agent stopped - Results:
+  void de.codecentric.performance.Demo.method0ms() 2736ms
+Code Execution Path:
+  void de.codecentric.performance.DemoRunner.massDemo() > void de.codecentric.performance.DemoRunner.massDemo()
+  void de.codecentric.performance.Demo.runCode() > void de.codecentric.performance.Demo.method0ms()
+Agent internal Overhead 0ms
+Agent Overhead 0ms
+So we can clearly see that sampling had problems capturing the 1 millisecond methods. But we see a Thread.sleep(), which we have not seen with instrumentation. Because the sampling has much easier access to previous executing method using monitoredThread.getStackTrace()[1], we discover that it is method50ms which is invoking thread sleep. But the execution path is missing a few short invocations. The invocations of 100ms, 1ms and 100ms are seen as one about 200ms long invocation of the method called 100ms. It kind of automatically filters the performance wise irrelevant 1ms execution, so this chain is presented as 200ms execution of method100ms. This is mainly due to the fact that the agent will not see code which returns faster than the sampling interval. When doing sampling, there are other aspects to consider in respect to the sampling interval. A good paper on that topic is: “Evaluating the Accuracy of Java Profilers”
+
+As we can see, sampling gives the expected results on the second demo code without problems with the executionpath length.
+
+Overhead again
+
+So we can see that in the first example, the overhead is quite similar to instrumentation. But in the second example the internal overhead is drastically lower. We only miss 223ms (2959ms – 2736ms) but this seems not to be caused by our internal measures. Also this agent runs in a different thread, which makes some overhead not resulting in longer execution time of the real code. And this would utilize multiple cores easily.
+
+Conclusion
+Both, instrumentation and sampling, have different characteristics with their own advantages and disadvantages.
+They are caused by the fundamental difference and can be mitigated to some extend by clever construction of the agents but never removed.
+
+Instrumentation
+
+Has access to invocation count, precise actual/max/min/avg execution times and precise invocation order.
+Needs to have configuration on what methods to instrument. Instrumentation needs to be balanced to exclude mass invocations or invocations where the measuring code outweighs the measured code.
+Generally has much more data to process.
+Sampling
+
+Stable overhead, mainly determined by sampling interval, not by measured code.
+Execution Hot Spots are shown instead of fine granular execution path and time.
+Can discover unknown code.
+Runs easily on separate core.
