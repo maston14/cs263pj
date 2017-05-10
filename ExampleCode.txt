@@ -1,0 +1,243 @@
+1.
+java hashmap:
+
+1)
+import java.util.*;
+
+public class TestHashMap {
+  public static void doTest() {
+    Map<String, Integer> testmap = new HashMap<String, Integer>();
+    for (int i = 0; i < 10000000; i++) {
+      String s = Integer.toString(i);
+      testmap.put(s, i);
+      int t = testmap.get(s);
+      if (t % 100000 == 0) {
+        System.out.println(t);
+      }
+    }
+  }
+
+  public static void main(String[] args) {
+    for (int i = 0; i < 3; i++) {
+      long start = System.currentTimeMillis();
+      doTest();
+      long end = System.currentTimeMillis();
+      System.out.printf("Round %d: Time duration: %dms\n", i, (end - start));
+      // System.gc();
+    }
+  }
+}
+
+2)
+Map<String, Integer> testmap = new HashMap<String, Integer>();
+for (int i = 0; i < 10000000; i++) {
+    String s = Integer.toString(i);
+    testmap.put(s, i);
+    int t = testmap.get(s);
+    if (t % 100000 == 0) {
+        System.out.println(t);
+    }
+}
+
+2.
+In/Out:
+1)
+public class TestArgs {  
+    public static void main(String[] args) {  
+        for (int i = 0; i < args.length; i++) {  
+            System.out.println("args[" + i + "] is <" + args[i] + ">");  
+        }  
+    }  
+}  
+
+2)
+java.lang.System   
+public final class System  extends Object{   
+   static  PrintStream  err;  
+   static  InputStream  in;  
+   static  PrintStream  out;  
+}  
+
+3)
+import java.io.*;  
+public class StandardInputOutput {  
+    public static void main(String args[]) {  
+        int b;  
+        try {  
+            System.out.println("please Input:");  
+            while ((b = System.in.read()) != -1) {  
+                System.out.print((char) b);  
+            }  
+        } catch (IOException e) {  
+            System.out.println(e.toString());  
+        }  
+    }  
+}  
+
+4)
+import java.io.BufferedReader;  
+import java.io.IOException;  
+import java.io.InputStreamReader;  
+  
+public class StandardInputOutput {  
+    public static void main(String args[]) {  
+        String s;  
+       
+        InputStreamReader ir = new InputStreamReader(System.in);  
+        BufferedReader in = new BufferedReader(ir);  
+        System.out.println("Unix: ctrl-d or ctrl-c to exit"  
+                + "\nWindows: ctrl-z to exit");  
+        try {  
+       
+            s = in.readLine();  
+   
+            while (s != null) {  
+                System.out.println("Read: " + s);  
+                s = in.readLine();  
+            }  
+           
+            in.close();  
+        } catch (IOException e) { // Catch any IO exceptions.  
+            e.printStackTrace();  
+        }  
+    }  
+} 
+
+5)
+import java.io.File;  
+import java.io.IOException;  
+public class TestFile {  
+    public static void main(String args[]) throws IOException {  
+        File dir = new File("\\root");  
+        File f1 = new File(dir, "fileOne.txt");  
+        File f2 = new File(dir, "fileTwo.java");  
+        if (!dir.exists())  
+            dir.mkdir();  
+        if (!f1.exists())  
+            f1.createNewFile();  
+        if (!f2.exists())  
+            f2.createNewFile();  
+        System.out.println("f1's AbsolutePath=  " + f1.getAbsolutePath());  
+        System.out.println("f1 Canread=" + f1.canRead());  
+        System.out.println("f1's len= " + f1.length());  
+        String[] FL;  
+        int count = 0;  
+        FL = dir.list();  
+        for (int i = 0; i < FL.length; i++) {  
+            count++;  
+            System.out.println(FL[i] + "is in \\root");  
+        }  
+        System.out.println("there are" + count + "file in //root");  
+    }  
+  
+}  
+
+6)
+import java.io.IOException;  
+import java.io.FileInputStream;  
+;  
+public class TestFile {  
+    public static void main(String args[]) throws IOException {  
+        try{      
+               FileInputStream rf=new   FileInputStream("InputFromFile.java");  
+               int n=512;   byte  buffer[]=new  byte[n];     
+               while((rf.read(buffer,0,n)!=-1)&&(n>0)){  
+                   System.out.println(new String(buffer) );  
+                }  
+                System.out.println();  
+                rf.close();  
+        } catch(IOException  IOe){        
+              System.out.println(IOe.toString());  
+        }  
+  
+    }  
+  
+}  
+
+7)
+import java.io.IOException;  
+import java.io.FileOutputStream;  
+public class TestFile {  
+    public static void main(String args[]) throws IOException {  
+        try {  
+            System.out.println("please Input from      Keyboard");  
+            int count, n = 512;  
+            byte buffer[] = new byte[n];  
+            count = System.in.read(buffer);  
+            FileOutputStream wf = new FileOutputStream("d:/myjava/write.txt");  
+            wf.write(buffer, 0, count);  
+            wf.close();   
+            System.out.println("Save to the write.txt");  
+        } catch (IOException IOe) {  
+            System.out.println("File Write Error!");  
+        }  
+    }  
+  
+}  
+
+8)
+import java.io.File;  
+import java.io.IOException;  
+import java.io.FileOutputStream;  
+import java.io.FileInputStream;  
+  
+public class TestFile {  
+    public static void main(String args[]) throws IOException {  
+        try {  
+            File inFile = new File("copy.java");  
+            File outFile = new File("copy2.java");  
+            FileInputStream finS = new FileInputStream(inFile);  
+            FileOutputStream foutS = new FileOutputStream(outFile);  
+            int c;  
+            while ((c = finS.read()) != -1) {  
+                foutS.write(c);  
+            }  
+            finS.close();  
+            foutS.close();  
+        } catch (IOException e) {  
+            System.err.println("FileStreamsTest: " + e);  
+        }  
+    }  
+  
+}  
+
+9)
+
+import java.io.*;  
+  
+public class ReadWriteToFile {  
+    public static void main(String args[]) throws IOException {  
+        InputStreamReader sin = new InputStreamReader(System.in);  
+        BufferedReader bin = new BufferedReader(sin);  
+        FileWriter out = new FileWriter("myfile.txt");  
+        BufferedWriter bout = new BufferedWriter(out);  
+        String s;  
+        while ((s = bin.readLine()).length() > 0) {  
+            bout.write(s, 0, s.length());  
+        }  
+  
+    }  
+}  
+
+10)
+import java.io.*;  
+public class EncodeTest {  
+    private static void readBuff(byte [] buff) throws IOException {  
+       ByteArrayInputStream in =new ByteArrayInputStream(buff);  
+        int data;  
+        while((data=in.read())!=-1)   System.out.print(data+"  ");  
+        System.out.println();     in.close();     }  
+  
+   public static void main(String args[]) throws IOException {  
+       System.out.println("using unicode:" );  
+       char   c='好';  
+       int lowBit=c&0xFF;     int highBit=(c&0xFF00)>>8;  
+       System.out.println(""+lowBit+"   "+highBit);  
+       String s="好";  
+       System.out.println("Local Operating System:");  
+       readBuff(s.getBytes());  
+       System.out.println("using GBK:");  
+       readBuff(s.getBytes("GBK"));  
+       System.out.println("Using UTF-8:");        
+       readBuff(s.getBytes("UTF-8"));      }  
+}  
