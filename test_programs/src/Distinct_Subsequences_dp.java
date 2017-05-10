@@ -13,7 +13,7 @@ import org.junit.Assert;
 
 public class Distinct_Subsequences_dp {
 
-	public static int numDistinct( String s, String t ) {
+    public static int numDistinct( String s, String t ) {
         if ( s == null || t == null )
             return 0;
         int sl = s.length();
@@ -41,13 +41,13 @@ public class Distinct_Subsequences_dp {
     public static void main( String[] args ) {
         long tStart = System.currentTimeMillis();
 
-    	Assert.assertEquals( numDistinct("ckkcharrcokast","cat"), 5 );
-    	Assert.assertEquals( numDistinct("wryhsdkjfhqgifduhasdfssdsfxcbvdgaffskjdf","sjf"), 13 );
-    	Assert.assertEquals( numDistinct("aaaaaffffffiouhjnklhkhkjhgggwwwqqqqq","afgwq"), 1350 );
-    	Assert.assertEquals( numDistinct("zxfgwefgksdfbhwaksdf","s"), 2 );
-    	Assert.assertEquals( numDistinct("aaaaaaaaaaaaa","a"), 13 );
-    	Assert.assertEquals( numDistinct("zcmadhkloqjlkjhaaafskjsdhfkasdasdasd","asd"), 66 );
-    	Assert.assertEquals( numDistinct("zcvzkfjhsakjfhazvzcasfxgvsdfzgzfasf","zf"), 24 );
+        Assert.assertEquals( numDistinct("ckkcharrcokast","cat"), 5 );
+        Assert.assertEquals( numDistinct("wryhsdkjfhqgifduhasdfssdsfxcbvdgaffskjdf","sjf"), 13 );
+        Assert.assertEquals( numDistinct("aaaaaffffffiouhjnklhkhkjhgggwwwqqqqq","afgwq"), 1350 );
+        Assert.assertEquals( numDistinct("zxfgwefgksdfbhwaksdf","s"), 2 );
+        Assert.assertEquals( numDistinct("aaaaaaaaaaaaa","a"), 13 );
+        Assert.assertEquals( numDistinct("zcmadhkloqjlkjhaaafskjsdhfkasdasdasd","asd"), 66 );
+        Assert.assertEquals( numDistinct("zcvzkfjhsakjfhazvzcasfxgvsdfzgzfasf","zf"), 24 );
 
         long tEnd = System.currentTimeMillis();
         long tDelta = tEnd - tStart;
