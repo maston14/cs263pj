@@ -1,0 +1,73 @@
+Current Java SDK versions are delivered with some tools promising to find performance problems in Java applications. In addition to the well-known JConsole, the development kit is served with VisualVM, a plugin-capable tool showing memory graphs as well as CPU profiling information.
+
+Other market players offer complex profiling tools especially designed to analyse performance problems in Java applications. What is the difference between these tools?
+
+There exist many causes for performance issues, so in our quick overview we are going to qualify our analysis to 5 important spots in using profiling technology:
+
+IDE integration
+memory + memory leak analysis
+CPU profiling
+database statement monitoring
+remote profiling
+
+1.1. IDE Integration
+
+First of all the famous profiling tools JProfiler and YourKit both come with an integration in the most important IDE’s. Which means that it is possible to start debugging sessions directly from your IDE project as well as jump back from the profiler to the source code. This means that if you have found a hotspot in your application you can show the source-code-snippet in your IDE and start fixing. This can ease your working process in comparison to the build-in tools.
+
+For VisualVM there exists plugins for eclipse and IntelliJ IDEA which enable you to launch the tool together with your application from the IDE and directly jumps to your application. NetBeans IDE already contains a built-in profiler providing the same profiling features.
+
+Memory + Memory Leak Analysis
+
+Many performance problems in enterprise or web applications result from memory (garbage collector) or database access issues. In case of common memory issues, all tools provide good and similar solutions.
+
+A very comfortable way of showing memory samples can be seen in YourKit which provides the relevant sampled information cumulated in one graph with the possibility to simply mark a time range via mouse to inspect allocations and calls.
+
+Your Kit memory
+
+But a similar view can be found in all of the profilers. This views are a great help in optimizing memory usage and tune your application for targets like best throughput.
+
+To find memory leaks, a good starting point is to compare two memory snapshots to find the difference after garbage collection is done. In general VisualVM, shipped with the Java SDK, is enough to create such a report. The heap viewer comes with the ability to shows references, computing retained sizes and paths to GC roots. So you are well equipped.
+
+Helpful in finding memory leaks is the facility to view the GC-path based on any class.
+
+gcrootpath
+
+In JProfiler we find an intuitive way to navigate from the point where we have found memory leaking classes or objects down to exactly the point where the instance is getting created or their references are hold. In combination with the IDE support, this makes it very easy to fix memory-leak problems because you can drill down the problem down to the problem causing sourceline in your favourite IDE and directly fix it at the point where the problem occurred. The YourKit-profiler is equipped with similar views.
+
+yourkit_gcrootpath
+
+At this point, in my opinion, the JProfiler user interface is much more intuitive than the YourKit user interface but this is certainly just a matter of taste. On the other hand we have some great performance graphs in YourKit showing many information stacked in one view which gives a great overview about in which shape the system is.
+
+yourkit_stackedPerformanceGraph
+
+2 CPU Profiling
+
+With all profiling tools including VisualVM you can analyse method calls and the cpu-time needed to perform the operations. So it’s possible to find the hotspots in execution. An important basic functionality for profiling your application. Also there are specialized views directly visualizing the hotspots.
+
+So what are the real differences? One very useful information which is shown in JProfiler is the count how often an event occurred in the period of measurement time.
+
+Why this is important? Imagine some very short running sql-statements as an example. This statements won’t appear in the statistics of long-running statements on database side, but anyway can cause a performance issue when getting called in loop. Beside of caching data which results from this statements, to improve performance another possible solution should be to dissolve such iterations to a simpler flat execution path like one database query or another algorithm. The same applies to very frequently called expensive java operations.
+
+3 Database Statement Monitoring
+
+Another useful feature of JProfiler when using JPA in an application, is to track JPQL queries and cumulate them with the provider-generated JDBC statements in the view. (As long as showing the JPA and JDBC hotspot statements) This is helpful to identify the called JPQL query and on the other side to see wether loading of an entity results in a join-statement or is done in subselects. It also helps to see unnecessary eager loading or lazy loading annotations.
+
+YourKit also comes with the ability to trace jdbc statements and identify hotspots but won’t show the original JPQL query, but surely you can guess from the JDBC query. So it’s also possible to find long running statements and database bottlenecks with YourKit.
+
+VisualVM doesn’t provide such ability.
+
+4 Remote profiling
+
+Another important feature in profilers is the ability to sample data from remote running applications. In VisualVM it’s possible to connect to a remote running application using JMX or java’s jstatd demon and collect necessary information about the running java process like memory usage and also cpu samples. And all this out-of-the-box. It is also possible to trigger the GC and to create a heap dump of the running application on the remote machine which is saved on the remote machine.
+
+Both JProfiler and YourKit scores here with easy to install agents which allow you to profile remote applications and servers.
+
+Beside of manually installing the agents, you can use wizards to prepare most of the famous JEE servers to accept connections from the profiling tools. This is done by duplicating the startup script of your server and insert parameters to load the profiling-agent-dll during start up (java instrumentation agent). A very simple process with minimal impact on the startup process itself.
+
+But also in sceneries where no wizard is available, it’s easy to install the required platform dependent agent by using a startup parameter of the JVM.
+
+5 Summary
+
+VisualVM hasn’t all the features provided by the commercial profiling tools, but also provides all basic features necessary for memory analysis and runtime analysis. And it’s shipped with the java sdk so it’s an instrument always available.
+
+JProfiler and YourKit are both superior products with great profiling features serving all the needs which outruns the basic requirements. It is a matter of taste which of them to use and worth to evaluate both when looking for a profiling tool.
