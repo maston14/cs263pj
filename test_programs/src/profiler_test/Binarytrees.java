@@ -1,5 +1,7 @@
 package profiler_test;
 
+import java.util.Scanner;
+
 /**
  * The Computer Language Benchmarks Game
  * http://benchmarksgame.alioth.debian.org/
@@ -20,9 +22,14 @@ public class Binarytrees {
             Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     public static void main(final String[] args) throws Exception {
-    	long tStart = System.currentTimeMillis();
-    	
-        int n = 0;
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Type anything to run: ");
+        String name = sc.next();
+        sc.close();
+
+        long tStart = System.currentTimeMillis();
+
+        int n = 21;
         if (0 < args.length) {
             n = Integer.parseInt(args[0]);
         }
@@ -61,7 +68,7 @@ public class Binarytrees {
 
         System.out.println("long lived tree of depth " + maxDepth +
                 "\t check: " + longLivedTree.itemCheck());
-        
+
         long tEnd = System.currentTimeMillis();
         long tDelta = tEnd - tStart;
         double elapsedSeconds = tDelta / 1000.0;

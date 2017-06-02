@@ -11,25 +11,35 @@ Parallel by The Anh Tran
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.Scanner;
 import java.util.concurrent.CyclicBarrier;
 
 public class Spectralnorm
 {
     private static final NumberFormat formatter = new DecimalFormat ("#.000000000");
 
-    public static void main (String[] args)
-    {
-    	long tStart = System.currentTimeMillis();
-    	
-        int n = 1000;
-        if (args.length > 0) n = Integer.parseInt (args[0]);
+    public static void main (String[] args){
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Type anything to run: ");
+        String name = sc.next();
+        sc.close();
 
-        System.out.println (formatter.format (spectralnormGame (n)) );
-        
-        long tEnd = System.currentTimeMillis();
-        long tDelta = tEnd - tStart;
-        double elapsedSeconds = tDelta / 1000.0;
-        System.out.println( elapsedSeconds + " sec");
+        double avg = 0;
+        for(int j = 0; j < 10; j++){
+            long tStart = System.currentTimeMillis();
+
+            int n = 5500;
+            if (args.length > 0) n = Integer.parseInt (args[0]);
+
+            System.out.println (formatter.format (spectralnormGame (n)) );
+
+            long tEnd = System.currentTimeMillis();
+            long tDelta = tEnd - tStart;
+            double elapsedSeconds = tDelta / 1000.0;
+            System.out.println( elapsedSeconds + " sec");
+            avg += elapsedSeconds;
+        }
+        System.out.println( "avg is: "+ avg / 10 + " sec");
     }
 
 

@@ -17,47 +17,48 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 public class Distinct_Subsequences_dfs {
 
-    public static int numDistinct( String s, String t ) {
+    public static int numDistinct(String s, String t) {
         Map<Character, List<Integer>> map = new HashMap<>();
         char[] ch_a = s.toCharArray();
-        for ( int i = 0; i < ch_a.length; i++ ) {
-            if ( !map.containsKey( ch_a[i] ) ) {
+        for (int i = 0; i < ch_a.length; i++) {
+            if (!map.containsKey(ch_a[i])) {
                 List<Integer> list = new ArrayList<>();
-                list.add( i );
-                map.put( ch_a[i], list );
+                list.add(i);
+                map.put(ch_a[i], list);
             } else {
-                List<Integer> list = map.get( ch_a[i] );
-                list.add( i );
+                List<Integer> list = map.get(ch_a[i]);
+                list.add(i);
             }
         }
-        return helper( map, t, 0, -1 );
+        return helper(map, t, 0, -1);
 
     }
 
-    public static int helper( Map<Character, List<Integer>> map, String t, int pos, int lastPos ) {
-        if ( pos > t.length() - 1 ) return 0;
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        char ch = t.charAt( pos );
-        int count = 0;
-        if ( !map.containsKey( ch ) )
+    public static int helper(Map<Character, List<Integer>> map, String t, int pos, int lastPos) {
+        if (pos > t.length() - 1)
             return 0;
-        List<Integer> list = map.get( ch );
-        if ( pos == t.length() - 1 ) {
-            for ( Integer I : list ) {
-                if ( I > lastPos )
+		/*
+		 * try { Thread.sleep(1000); } catch (InterruptedException e) {
+		 * e.printStackTrace(); }
+		 */
+        char ch = t.charAt(pos);
+        int count = 0;
+        if (!map.containsKey(ch))
+            return 0;
+        List<Integer> list = map.get(ch);
+        if (pos == t.length() - 1) {
+            for (Integer I : list) {
+                if (I > lastPos)
                     count++;
             }
         } else {
-            for ( Integer I : list ) {
-                if ( I > lastPos ) {
-                    count += helper( map, t, pos + 1, I );
+            for (Integer I : list) {
+                if (I > lastPos) {
+                    count += helper(map, t, pos + 1, I);
                 }
             }
         }
@@ -65,22 +66,32 @@ public class Distinct_Subsequences_dfs {
 
     }
 
-    public static void main( String[] args ) {
-        long tStart = System.currentTimeMillis();
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Type anything to run: ");
+        String name = sc.next();
+        sc.close();
 
-        for( int i = 0; i < 1000000; i++ ) {
-            Assert.assertEquals(numDistinct("ckkcharrcokast", "cat"), 5);
-            Assert.assertEquals(numDistinct("wryhsdkjfhqgifduhasdfssdsfxcbvdgaffskjdf", "sjf"), 13);
-            Assert.assertEquals(numDistinct("aaaaaffffffiouhjnklhkhkjhgggwwwqqqqq", "afgwq"), 1350);
-            Assert.assertEquals(numDistinct("zxfgwefgksdfbhwaksdf", "s"), 2);
-            Assert.assertEquals(numDistinct("aaaaaaaaaaaaa", "a"), 13);
-            Assert.assertEquals(numDistinct("zcmadhkloqjlkjhaaafskjsdhfkasdasdasd", "asd"), 66);
-            Assert.assertEquals(numDistinct("zcvzkfjhsakjfhazvzcasfxgvsdfzgzfasf", "zf"), 24);
+        double avg = 0;
+        for (int j = 0; j < 10; j++) {
+            long tStart = System.currentTimeMillis();
+
+            for (int i = 0; i < 1000000; i++) {
+                Assert.assertEquals(numDistinct("ckkcharrcokast", "cat"), 5);
+                Assert.assertEquals(numDistinct("wryhsdkjfhqgifduhasdfssdsfxcbvdgaffskjdf", "sjf"), 13);
+                Assert.assertEquals(numDistinct("aaaaaffffffiouhjnklhkhkjhgggwwwqqqqq", "afgwq"), 1350);
+                Assert.assertEquals(numDistinct("zxfgwefgksdfbhwaksdf", "s"), 2);
+                Assert.assertEquals(numDistinct("aaaaaaaaaaaaa", "a"), 13);
+                Assert.assertEquals(numDistinct("zcmadhkloqjlkjhaaafskjsdhfkasdasdasd", "asd"), 66);
+                Assert.assertEquals(numDistinct("zcvzkfjhsakjfhazvzcasfxgvsdfzgzfasf", "zf"), 24);
+            }
+
+            long tEnd = System.currentTimeMillis();
+            long tDelta = tEnd - tStart;
+            double elapsedSeconds = tDelta / 1000.0;
+            System.out.println(elapsedSeconds + " sec");
+            avg += elapsedSeconds;
         }
-
-        long tEnd = System.currentTimeMillis();
-        long tDelta = tEnd - tStart;
-        double elapsedSeconds = tDelta / 1000.0;
-        System.out.println( elapsedSeconds + " sec");
+        System.out.println("average: " + avg / 10 + " sec");
     }
 }

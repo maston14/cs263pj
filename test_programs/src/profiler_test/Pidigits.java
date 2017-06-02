@@ -105,7 +105,7 @@ public class Pidigits {
     public static void main(String[] args) {
     	long tStart = System.currentTimeMillis();
     	
-        Pidigits m = new Pidigits(Integer.parseInt(args[0]));
+        Pidigits m = new Pidigits(10000);
         m.pidigits();
         
         long tEnd = System.currentTimeMillis();

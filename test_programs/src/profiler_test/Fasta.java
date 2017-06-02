@@ -10,6 +10,7 @@ package profiler_test;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Scanner;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -33,9 +34,14 @@ public class Fasta {
     static int last = 42;
 
     public static void main(String[] args) {
-    	long tStart = System.currentTimeMillis();
-    	
-        int n = 1000;
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Type anything to run: ");
+        String name = sc.next();
+        sc.close();
+
+        long tStart = System.currentTimeMillis();
+
+        int n = 25000000;
 
         if (args.length > 0) {
             n = Integer.parseInt(args[0]);
@@ -72,12 +78,14 @@ public class Fasta {
             for (int i = 0; i < BUFFERS_IN_PLAY; i++) {
                 writeBuffer(writer);
             }
+
+            long tEnd = System.currentTimeMillis();
+            long tDelta = tEnd - tStart;
+            double elapsedSeconds = tDelta / 1000.0;
+            System.out.println( elapsedSeconds + " sec");
         } catch (IOException ex) {
         }
-        long tEnd = System.currentTimeMillis();
-        long tDelta = tEnd - tStart;
-        double elapsedSeconds = tDelta / 1000.0;
-        System.out.println( elapsedSeconds + " sec");
+
     }
 
     private static void lineFillALU(AbstractBuffer buffer) {
