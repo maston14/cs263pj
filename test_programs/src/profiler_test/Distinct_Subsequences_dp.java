@@ -50,7 +50,9 @@ public class Distinct_Subsequences_dp {
         sc.close();
 
         double avg = 0;
-        for (int j = 0; j < 10; j++) {
+        int iter = 30;
+
+        for (int j = 0; j < iter; j++) {
             long tStart = System.currentTimeMillis();
 
             for (int i = 0; i < 1000000; i++) {
@@ -69,6 +71,6 @@ public class Distinct_Subsequences_dp {
             System.out.println(elapsedSeconds + " sec");
             avg += elapsedSeconds;
         }
-        System.out.println("average: " + avg / 10 + " sec");
+        System.out.println("average: " + avg / iter + " sec");
     }
 }

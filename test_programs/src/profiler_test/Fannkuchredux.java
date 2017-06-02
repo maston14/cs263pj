@@ -134,7 +134,7 @@ public final class Fannkuchredux implements Runnable {
         sc.close();
 
         double avg = 0;
-        int iter = 100;
+        int iter = 10;
 
         for( int j = 0; j < iter; j++){
             long tStart = System.currentTimeMillis();

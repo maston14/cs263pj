@@ -25,7 +25,7 @@ public class Spectralnorm
         sc.close();
 
         double avg = 0;
-        for(int j = 0; j < 10; j++){
+        for(int j = 0; j < 50; j++){
             long tStart = System.currentTimeMillis();
 
             int n = 5500;
@@ -39,7 +39,7 @@ public class Spectralnorm
             System.out.println( elapsedSeconds + " sec");
             avg += elapsedSeconds;
         }
-        System.out.println( "avg is: "+ avg / 10 + " sec");
+        System.out.println( "avg is: "+ avg / 50 + " sec");
     }
 
 
