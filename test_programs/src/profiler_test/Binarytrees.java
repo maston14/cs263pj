@@ -27,6 +27,7 @@ public class Binarytrees {
         String name = sc.next();
         sc.close();
 
+
         long tStart = System.currentTimeMillis();
 
         int n = 21;

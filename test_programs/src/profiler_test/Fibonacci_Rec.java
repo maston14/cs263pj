@@ -1,5 +1,7 @@
 package profiler_test;
 
+import java.util.Scanner;
+
 public class Fibonacci_Rec {
     public static long fibonacci(int n) {
         if (n <= 1) return n;
@@ -7,6 +9,11 @@ public class Fibonacci_Rec {
     }
 
     public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Type anything to run: ");
+        String name = sc.next();
+        sc.close();
+
     	long tStart = System.currentTimeMillis();
     	
         int n = 1000;

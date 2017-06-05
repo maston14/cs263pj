@@ -1,5 +1,7 @@
 package profiler_test.memory_leak;
 
+import java.util.Scanner;
+
 /**
  * Created by ZHONGQI on 5/16/17.
  */
@@ -30,16 +32,27 @@ public class Stack {
         return (pointer == maxSize - 1);
     }
     public static void main(String[] args) {
-        Stack stack = new Stack(10000);
-        for(int i = 0; i < 10000; i++)
+        Scanner sc = new Scanner(System.in);
+        //System.out.println("Type anything to run: ");
+        String name = sc.next();
+
+        int stack_size = 1000000;
+
+        Stack stack = new Stack(stack_size);
+        for(int i = 0; i < stack_size; i++)
         {
             stack.push(i);
         }
-        for(int i = 0; i < 10000; i++)
+        for(int i = 0; i < stack_size; i++)
         {
             int element = stack.pop();
-            System.out.println("Poped element is "+ element);
+            //System.out.println("Poped element is "+ element);
         }
+
+        System.out.println("Type anything to stop: ");
+        name = sc.next();
+        sc.close();
+
     }
 }
 
